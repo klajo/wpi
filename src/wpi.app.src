@@ -1,0 +1,9 @@
+%% -*- erlang -*-
+{application, wpi,
+ [{description, "NIF which wraps the wiringPi library for raspberry pi"},
+  {vsn, "0.1"},
+  {registered, []},
+  {applications, [kernel,
+                  stdlib]},
+  {env, []}
+ ]}.
