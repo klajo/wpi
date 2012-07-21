@@ -17,9 +17,6 @@
 -ifndef(WPI_HRL).
 -define(WPI_HRL, true).
 
--define(WPI_MODE_PINS, 0).
--define(WPI_MODE_GPIO, 1).
-
 -define(WPI_INPUT, 0).
 -define(WPI_OUTPUT, 1).
 -define(WPI_PWM_OUTPUT, 2).
