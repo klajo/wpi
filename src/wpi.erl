@@ -18,7 +18,6 @@
 
 -include_lib("wpi/include/wpi.hrl").
 
--export([gpio_mode/1]).
 -export([pin_mode/2]).
 -export([digital_write/2]).
 -export([pwm_write/2]).
@@ -30,7 +29,6 @@
 
 -on_load(on_load/0).
 
--type wpi_gpio_mode()     :: 0..1.    % WPI_MODE_PINS|WPI_MODE_GPIO
 -type wpi_pin_mode()      :: 0..2.    % WPI_INPUT|WPI_OUTPUT|WPI_PWM_OUTPUT
 -type wpi_pin_number()    :: integer().
 -type wpi_digital_value() :: 0..1.    % WPI_LOW|WPI_HIGH
@@ -39,10 +37,6 @@
 
 on_load() ->
     ok = erlang:load_nif(filename:join(code:priv_dir(wpi), "./wpi_drv"), 0).
-
--spec gpio_mode(wpi_gpio_mode()) -> ok.
-gpio_mode(_Mode) ->
-    ?nif_stub.
 
 -spec pin_mode(wpi_pin_number(), wpi_pin_mode()) -> ok.
 pin_mode(_Pin, _Mode) ->

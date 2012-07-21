@@ -24,18 +24,6 @@ load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
 }
 
 static ERL_NIF_TERM
-gpio_mode(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
-{
-    int mode;
-    if (!enif_get_int(env, argv[0], &mode))
-    {
-        return enif_make_badarg(env);
-    }
-    wiringPiGpioMode(mode);
-    return enif_make_atom(env, "ok");
-}
-
-static ERL_NIF_TERM
 pin_mode(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int pin, mode;
@@ -113,7 +101,6 @@ pull_up_dn_control(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 static ErlNifFunc nif_funcs[] =
     {
-        {"gpio_mode",          1, gpio_mode},
         {"pin_mode",           2, pin_mode},
         {"digital_write",      2, digital_write},
         {"pwm_write",          2, pwm_write},
