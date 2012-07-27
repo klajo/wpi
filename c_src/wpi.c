@@ -27,11 +27,8 @@ static ERL_NIF_TERM
 pin_mode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int pin, mode;
-    if (!enif_get_int(env, argv[0], &pin))
-    {
-        return enif_make_badarg(env);
-    }
-    if (!enif_get_int(env, argv[1], &mode))
+    if (!enif_get_int(env, argv[0], &pin) ||
+        !enif_get_int(env, argv[1], &mode))
     {
         return enif_make_badarg(env);
     }
@@ -43,11 +40,8 @@ static ERL_NIF_TERM
 digital_write_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int pin, value;
-    if (!enif_get_int(env, argv[0], &pin))
-    {
-        return enif_make_badarg(env);
-    }
-    if (!enif_get_int(env, argv[1], &value))
+    if (!enif_get_int(env, argv[0], &pin) ||
+        !enif_get_int(env, argv[1], &value))
     {
         return enif_make_badarg(env);
     }
@@ -59,11 +53,8 @@ static ERL_NIF_TERM
 pwm_write_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int pin, value;
-    if (!enif_get_int(env, argv[0], &pin))
-    {
-        return enif_make_badarg(env);
-    }
-    if (!enif_get_int(env, argv[1], &value))
+    if (!enif_get_int(env, argv[0], &pin) ||
+        !enif_get_int(env, argv[1], &value))
     {
         return enif_make_badarg(env);
     }
@@ -87,11 +78,8 @@ static ERL_NIF_TERM
 pull_up_dn_control_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int pin, mode;
-    if (!enif_get_int(env, argv[0], &pin))
-    {
-        return enif_make_badarg(env);
-    }
-    if (!enif_get_int(env, argv[1], &mode))
+    if (!enif_get_int(env, argv[0], &pin) ||
+        !enif_get_int(env, argv[1], &mode))
     {
         return enif_make_badarg(env);
     }
