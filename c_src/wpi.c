@@ -24,7 +24,7 @@ load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
 }
 
 static ERL_NIF_TERM
-pin_mode(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+pin_mode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int pin, mode;
     if (!enif_get_int(env, argv[0], &pin))
@@ -40,7 +40,7 @@ pin_mode(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 }
 
 static ERL_NIF_TERM
-digital_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+digital_write_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int pin, value;
     if (!enif_get_int(env, argv[0], &pin))
@@ -56,7 +56,7 @@ digital_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 }
 
 static ERL_NIF_TERM
-pwm_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+pwm_write_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int pin, value;
     if (!enif_get_int(env, argv[0], &pin))
@@ -72,7 +72,7 @@ pwm_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 }
 
 static ERL_NIF_TERM
-digital_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+digital_read_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int pin, value;
     if (!enif_get_int(env, argv[0], &pin))
@@ -84,7 +84,7 @@ digital_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 }
 
 static ERL_NIF_TERM
-pull_up_dn_control(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+pull_up_dn_control_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int pin, mode;
     if (!enif_get_int(env, argv[0], &pin))
@@ -101,11 +101,11 @@ pull_up_dn_control(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 static ErlNifFunc nif_funcs[] =
     {
-        {"pin_mode",           2, pin_mode},
-        {"digital_write",      2, digital_write},
-        {"pwm_write",          2, pwm_write},
-        {"digital_read",       1, digital_read},
-        {"pull_up_dn_control", 2, pull_up_dn_control}
+        {"pin_mode_nif",           2, pin_mode_nif},
+        {"digital_write_nif",      2, digital_write_nif},
+        {"pwm_write_nif",          2, pwm_write_nif},
+        {"digital_read_nif",       1, digital_read_nif},
+        {"pull_up_dn_control_nif", 2, pull_up_dn_control_nif}
     };
 
 ERL_NIF_INIT(wpi, nif_funcs, load, NULL, NULL, NULL)
