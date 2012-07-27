@@ -29,16 +29,24 @@
 
 -on_load(on_load/0).
 
--type wpi_pin_mode()      :: 0..2.    % WPI_INPUT|WPI_OUTPUT|WPI_PWM_OUTPUT
+-type wpi_pin_mode()      :: 0..27    % WPI_INPUT | WPI_OUTPUT | WPI_PWM_OUTPUT
+                             | input | output | pwm_output.
 -type wpi_pin_number()    :: integer().
--type wpi_digital_value() :: 0..1.    % WPI_LOW|WPI_HIGH
+-type wpi_digital_value() :: 0..1.    % WPI_LOW | WPI_HIGH
 -type wpi_pwm_value()     :: 0..1023.
--type wpi_pud_mode()      :: 0..2.    % WPI_PUD_OFF|WPI_PUD_DOWN|WPI_PUD_UP
+-type wpi_pud_mode()      :: 0..2     % WPI_PUD_OFF | WPI_PUD_DOWN | WPI_PUD_UP
+                             | off | down | up.
 
 on_load() ->
     ok = erlang:load_nif(filename:join(code:priv_dir(wpi), "./wpi_drv"), 0).
 
 -spec pin_mode(wpi_pin_number(), wpi_pin_mode()) -> ok.
+pin_mode(Pin, input) ->
+    pin_mode(Pin, ?WPI_INPUT);
+pin_mode(Pin, output) ->
+    pin_mode(Pin, ?WPI_OUTPUT);
+pin_mode(Pin, pwm_output) ->
+    pin_mode(Pin, ?WPI_PWM_OUTPUT);
 pin_mode(Pin, Mode) when is_integer(Pin),
                          (Mode == ?WPI_INPUT orelse
                           Mode == ?WPI_OUTPUT orelse
@@ -63,6 +71,12 @@ digital_read(Pin) when is_integer(Pin) ->
     digital_read_nif(Pin).
 
 -spec pull_up_dn_control(wpi_pin_number(), wpi_pud_mode()) -> ok.
+pull_up_dn_control(Pin, off) ->
+    pull_up_dn_control(Pin, ?WPI_PUD_OFF);
+pull_up_dn_control(Pin, down) ->
+    pull_up_dn_control(Pin, ?WPI_PUD_DOWN);
+pull_up_dn_control(Pin, up) ->
+    pull_up_dn_control(Pin, ?WPI_PUD_UP);
 pull_up_dn_control(Pin, Mode) when is_integer(Pin),
                                    (Mode == ?WPI_PUD_OFF orelse
                                     Mode == ?WPI_PUD_DOWN orelse
