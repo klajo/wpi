@@ -19,10 +19,24 @@ useful constants (matches those of WiringPi):
 
 Then you can start setting up the [pins][4] and use them:
 
-    application:start(wpi),
     Pin = 7,
     wpi:pin_mode(Pin, ?WPI_OUTPUT),
     wpi:digital_write(Pin, ?WPI_HIGH),
+
+It helps setting the ERL_LIBS environment variable to tell Erlang
+where to find the code. Assuming you have a copy of the `wpi`
+application in `/home/pi/src/wpi` you can add `wpi` and other apps in
+the `src` directory to the code path by setting the environment
+variable like this:
+
+    export ERL_LIBS=/home/src/
+
+If you get an error like this, it means that the library doesn't have
+root access. This is solved by running Erlang as root, but please
+consider the security implications of doing so. A future version of
+the library may have another way of handling this.
+
+    wiringPiSetup: Unable to open /dev/mem: Permission denied
 
 Caveats
 -------
