@@ -20,28 +20,41 @@
 
 -include_lib("wpi/include/wpi.hrl").
 
+%% the basics: pins and stuff
 -export([pin_mode/2]).
 -export([digital_write/2]).
 -export([pwm_write/2]).
 -export([digital_read/1]).
 -export([pull_up_dn_control/2]).
 
+%% LCD
+-export([lcd_init/8, lcd_init/12]).
+-export([lcd_home/1]).
+-export([lcd_clear/1]).
+-export([lcd_position/3]).
+-export([lcd_put_char/2]).
+-export([lcd_puts/2]).
+-export([lcd_printf/3]).
+-export([lcd_format/3]).
+
 -define(nif_stub,
         erlang:nif_error({nif_not_loaded, module, ?MODULE, line, ?LINE})).
 
 -on_load(on_load/0).
 
--type wpi_pin_mode()      :: 0..27    % WPI_INPUT | WPI_OUTPUT | WPI_PWM_OUTPUT
+-type wpi_pin_mode()      :: 0..2     % WPI_INPUT | WPI_OUTPUT | WPI_PWM_OUTPUT
                              | input | output | pwm_output.
 -type wpi_pin_number()    :: integer().
 -type wpi_digital_value() :: 0..1.    % WPI_LOW | WPI_HIGH
 -type wpi_pwm_value()     :: 0..1023.
 -type wpi_pud_mode()      :: 0..2     % WPI_PUD_OFF | WPI_PUD_DOWN | WPI_PUD_UP
                              | off | down | up.
+-opaque wpi_lcd_handle()  :: integer().
 
 on_load() ->
     ok = erlang:load_nif(filename:join(code:priv_dir(wpi), "./wpi_drv"), 0).
 
+%% the basics: pins and stuff
 -spec pin_mode(wpi_pin_number(), wpi_pin_mode()) -> ok.
 pin_mode(Pin, input) ->
     pin_mode(Pin, ?WPI_INPUT);
@@ -90,3 +103,74 @@ digital_write_nif(_Pin, _Value)     -> ?nif_stub.
 pwm_write_nif(_Pin, _Value)         -> ?nif_stub.
 digital_read_nif(_Pin)              -> ?nif_stub.
 pull_up_dn_control_nif(_Pin, _Mode) -> ?nif_stub.
+
+%% LCD
+-spec lcd_init(integer(), integer(),
+               wpi_pin_number(), wpi_pin_number(),
+               wpi_pin_number(), wpi_pin_number(),
+               wpi_pin_number(), wpi_pin_number()) -> ok.
+lcd_init(NumRows, NumCols, RsPin, EPin, D0Pin, D1Pin, D2Pin, D3Pin)
+  when is_integer(NumRows), NumRows > 0, is_integer(NumCols), NumCols > 0,
+       is_integer(RsPin), is_integer(EPin),
+       is_integer(D0Pin), is_integer(D1Pin),
+       is_integer(D2Pin), is_integer(D3Pin) ->
+    lcd_init_nif(NumRows, NumCols, _NumBits=4, RsPin, EPin,
+                 D0Pin, D1Pin, D2Pin, D3Pin, 0, 0, 0, 0).
+
+-spec lcd_init(integer(), integer(),
+               wpi_pin_number(), wpi_pin_number(),
+               wpi_pin_number(), wpi_pin_number(),
+               wpi_pin_number(), wpi_pin_number(),
+               wpi_pin_number(), wpi_pin_number(),
+               wpi_pin_number(), wpi_pin_number()) -> ok.
+lcd_init(NumRows, NumCols, RsPin, EPin,
+         D0Pin, D1Pin, D2Pin, D3Pin, D4Pin, D5Pin, D6Pin, D7Pin)
+  when is_integer(NumRows), NumRows > 0, is_integer(NumCols), NumCols > 0,
+       is_integer(RsPin), is_integer(EPin),
+       is_integer(D0Pin), is_integer(D1Pin),
+       is_integer(D2Pin), is_integer(D3Pin),
+       is_integer(D4Pin), is_integer(D5Pin),
+       is_integer(D6Pin), is_integer(D7Pin) ->
+    lcd_init_nif(NumRows, NumCols, _NumBits=8, RsPin, EPin,
+                 D0Pin, D1Pin, D2Pin, D3Pin, D4Pin, D5Pin, D6Pin, D7Pin).
+
+-spec lcd_home(wpi_lcd_handle()) -> ok.
+lcd_home(Handle) when is_integer(Handle) ->
+    lcd_home_nif(Handle).
+
+-spec lcd_clear(wpi_lcd_handle()) -> ok.
+lcd_clear(Handle) when is_integer(Handle) ->
+    lcd_clear_nif(Handle).
+
+-spec lcd_position(wpi_lcd_handle(), integer(), integer()) -> ok.
+lcd_position(Handle, X, Y)
+  when is_integer(Handle), is_integer(X), X >= 0, is_integer(Y), Y >= 0  ->
+    lcd_position_nif(Handle, X, Y).
+
+-spec lcd_put_char(wpi_lcd_handle(), 0..255) -> ok.
+lcd_put_char(Handle, Char)
+  when is_integer(Handle), is_integer(Char), Char >= 0, Char =< 255  ->
+    lcd_put_char_nif(Handle, Char).
+
+-spec lcd_puts(wpi_lcd_handle(), string()) -> ok.
+lcd_puts(Handle, String)
+  when is_integer(Handle), is_list(String) ->
+    lcd_puts_nif(Handle, length(String), String).
+
+-spec lcd_printf(wpi_lcd_handle(), string(), list(any())) -> ok.
+lcd_printf(_Handle, _Format, _Args) ->
+    erlang:error(not_supported).
+
+-spec lcd_format(wpi_lcd_handle(), string(), list(any())) -> ok.
+lcd_format(Handle, Format, Args)
+  when is_integer(Handle), is_list(Format), is_list(Args) ->
+    lcd_puts(Handle, lists:flatten(io_lib:format(Format, Args))).
+
+lcd_init_nif(_NumRows, _NumCols, _NumBits, _RsPin, _EPin,
+             _D0Pin, _D1Pin, _D2Pin, _D3Pin, _D4Pin, _D5Pin, _D6Pin, _D7Pin) ->
+    ?nif_stub.
+lcd_home_nif(_Handle)                      -> ?nif_stub.
+lcd_clear_nif(_Handle)                     -> ?nif_stub.
+lcd_position_nif(_Handle, _X, _Y)          -> ?nif_stub.
+lcd_put_char_nif(_Handle, _Char)           -> ?nif_stub.
+lcd_puts_nif(_Handle, _StringLen, _String) -> ?nif_stub.
