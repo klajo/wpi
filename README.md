@@ -38,12 +38,18 @@ the library may have another way of handling this.
 
     wiringPiSetup: Unable to open /dev/mem: Permission denied
 
+Supported functionality
+-----------------------
+
+* read from, write to and control pins
+* control and write to LCDs
+
 Caveats
 -------
 
 This NIF is entirely experimental - use at your own risk.  It has been
-used to both write to (LED) and read from (button) pins successfully,
-while some functionality may be untested.
+used to both write to (LED), read from (button) pins and control an
+LCD successfully, while some functionality may be untested.
 
 This library currently only supports wiringPiSetup(), not
 wiringPiSetupGpio() nor wiringPiSetupSys(). This means that it's
