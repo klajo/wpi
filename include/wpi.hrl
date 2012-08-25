@@ -30,4 +30,7 @@
 -define(WPI_PUD_DOWN, 1).
 -define(WPI_PUD_UP, 2).
 
+-define(WPI_LSB_FIRST, 0).
+-define(WPI_MSB_FIRST, 1).
+
 -endif. % WPI_HRL

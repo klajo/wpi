@@ -37,6 +37,10 @@
 -export([lcd_printf/3]).
 -export([lcd_format/3]).
 
+%% shift
+-export([shift_in/3]).
+-export([shift_out/4]).
+
 -define(nif_stub,
         erlang:nif_error({nif_not_loaded, module, ?MODULE, line, ?LINE})).
 
@@ -50,6 +54,9 @@
 -type wpi_pud_mode()      :: 0..2     % WPI_PUD_OFF | WPI_PUD_DOWN | WPI_PUD_UP
                              | off | down | up.
 -opaque wpi_lcd_handle()  :: integer().
+-type wpi_bit_order()     :: 0..1     % WPI_LSB_FIRST | WPI_MSB_FIRST
+                             | lsb_first | msb_first.
+-type wpi_uint8()         :: 0..255.
 
 on_load() ->
     ok = erlang:load_nif(filename:join(code:priv_dir(wpi), "./wpi_drv"), 0).
@@ -174,3 +181,27 @@ lcd_clear_nif(_Handle)                     -> ?nif_stub.
 lcd_position_nif(_Handle, _X, _Y)          -> ?nif_stub.
 lcd_put_char_nif(_Handle, _Char)           -> ?nif_stub.
 lcd_puts_nif(_Handle, _StringLen, _String) -> ?nif_stub.
+
+-spec shift_in(wpi_pin_number(), wpi_pin_number(), wpi_bit_order()) ->
+                      wpi_uint8().
+shift_in(DataPin, ClockPin, lsb_first) ->
+    shift_in(DataPin, ClockPin, ?WPI_LSB_FIRST);
+shift_in(DataPin, ClockPin, msb_first) ->
+    shift_in(DataPin, ClockPin, ?WPI_MSB_FIRST);
+shift_in(DataPin, ClockPin, Order)
+  when is_integer(DataPin), is_integer(ClockPin), is_integer(Order) ->
+    shift_in_nif(DataPin, ClockPin, Order).
+
+-spec shift_out(wpi_pin_number(), wpi_pin_number(), wpi_bit_order(),
+                wpi_uint8()) -> ok.
+shift_out(DataPin, ClockPin, lsb_first, Value) ->
+    shift_out(DataPin, ClockPin, ?WPI_LSB_FIRST, Value);
+shift_out(DataPin, ClockPin, msb_first, Value) ->
+    shift_out(DataPin, ClockPin, ?WPI_MSB_FIRST, Value);
+shift_out(DataPin, ClockPin, Order, Value)
+  when is_integer(DataPin), is_integer(ClockPin), is_integer(Order),
+       is_integer(Value) ->
+    shift_out_nif(DataPin, ClockPin, Order, Value).
+
+shift_in_nif(_DataPin, _ClockPin, _Order)          -> ?nif_stub.
+shift_out_nif(_DataPin, _ClockPin, _Order, _Value) -> ?nif_stub.

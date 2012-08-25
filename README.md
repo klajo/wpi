@@ -38,11 +38,12 @@ the library may have another way of handling this.
 
     wiringPiSetup: Unable to open /dev/mem: Permission denied
 
-Supported functionality
+Functionality
 -----------------------
 
 * read from, write to and control pins
 * control and write to LCDs
+* shift in/out bits (untested)
 
 Caveats
 -------

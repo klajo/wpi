@@ -21,6 +21,7 @@
 #include "erl_nif.h"
 #include <wiringPi.h>
 #include <lcd.h>
+#include <wiringShift.h>
 
 static int
 load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
@@ -189,6 +190,36 @@ lcd_puts_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     return enif_make_atom(env, "ok");
 }
 
+static ERL_NIF_TERM
+shift_in_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+    int data_pin, clock_pin, order, value;
+    if (!enif_get_int(env, argv[0], &data_pin)  ||
+        !enif_get_int(env, argv[1], &clock_pin) ||
+        !enif_get_int(env, argv[2], &order))
+    {
+        return enif_make_badarg(env);
+    }
+    value = shiftIn((uint8_t)data_pin, (uint8_t)clock_pin, (uint8_t)order);
+    return enif_make_int(env, value);
+}
+
+static ERL_NIF_TERM
+shift_out_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+    int data_pin, clock_pin, order, value;
+    if (!enif_get_int(env, argv[0], &data_pin)  ||
+        !enif_get_int(env, argv[1], &clock_pin) ||
+        !enif_get_int(env, argv[2], &order)     ||
+        !enif_get_int(env, argv[3], &value))
+    {
+        return enif_make_badarg(env);
+    }
+    shiftOut((uint8_t)data_pin, (uint8_t)clock_pin,
+             (uint8_t)order, (uint8_t)value);
+    return enif_make_atom(env, "ok");
+}
+
 static ErlNifFunc nif_funcs[] =
     {
         // the basics: pins and stuff
@@ -203,7 +234,10 @@ static ErlNifFunc nif_funcs[] =
         {"lcd_clear_nif",           1, lcd_clear_nif},
         {"lcd_position_nif",        3, lcd_position_nif},
         {"lcd_put_char_nif",        2, lcd_put_char_nif},
-        {"lcd_puts_nif",            3, lcd_puts_nif}
+        {"lcd_puts_nif",            3, lcd_puts_nif},
+        // shift
+        {"shift_in_nif",            3, shift_in_nif},
+        {"shift_out_nif",           4, shift_out_nif}
     };
 
 ERL_NIF_INIT(wpi, nif_funcs, load, NULL, NULL, NULL)
