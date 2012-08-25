@@ -44,6 +44,7 @@ Functionality
 * read from, write to and control pins
 * control and write to LCDs
 * shift in/out bits (untested)
+* soft PWM
 
 Caveats
 -------

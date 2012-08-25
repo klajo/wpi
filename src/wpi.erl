@@ -41,6 +41,10 @@
 -export([shift_in/3]).
 -export([shift_out/4]).
 
+%% soft PWM
+-export([soft_pwm_create/3]).
+-export([soft_pwm_write/2]).
+
 -define(nif_stub,
         erlang:nif_error({nif_not_loaded, module, ?MODULE, line, ?LINE})).
 
@@ -205,3 +209,16 @@ shift_out(DataPin, ClockPin, Order, Value)
 
 shift_in_nif(_DataPin, _ClockPin, _Order)          -> ?nif_stub.
 shift_out_nif(_DataPin, _ClockPin, _Order, _Value) -> ?nif_stub.
+
+-spec soft_pwm_create(wpi_pin_number(), integer(), integer()) -> ok.
+soft_pwm_create(Pin, InitValue, Range) when is_integer(Pin),
+                                            is_integer(InitValue),
+                                            is_integer(Range) ->
+    soft_pwm_create_nif(Pin, InitValue, Range).
+
+-spec soft_pwm_write(wpi_pin_number(), integer()) -> ok.
+soft_pwm_write(Pin, Value) when is_integer(Pin), is_integer(Value) ->
+    soft_pwm_write_nif(Pin, Value).
+
+soft_pwm_create_nif(_Pin, _InitValue, _Range) -> ?nif_stub.
+soft_pwm_write_nif(_Pin, _Value)              -> ?nif_stub.

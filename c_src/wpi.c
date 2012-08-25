@@ -22,11 +22,16 @@
 #include <wiringPi.h>
 #include <lcd.h>
 #include <wiringShift.h>
+#include <softPwm.h>
+
+static ERL_NIF_TERM atom_ok;
+static ERL_NIF_TERM atom_error;
 
 static int
 load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
 {
     atom_ok = enif_make_atom(env, "ok");
+    atom_error = enif_make_atom(env, "error");
     return wiringPiSetup(); // returns -1 in case of error ==> loading fails
 }
 
@@ -221,6 +226,46 @@ shift_out_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     return atom_ok;
 }
 
+// soft PWM
+static ERL_NIF_TERM
+soft_pwm_create_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+    int pin, init_value, range, result;
+    ERL_NIF_TERM atom_fail, err_code;
+    if (!enif_get_int(env, argv[0], &pin)        ||
+        !enif_get_int(env, argv[1], &init_value) ||
+        !enif_get_int(env, argv[2], &range))
+    {
+        return enif_make_badarg(env);
+    }
+    result = softPwmCreate(pin, init_value, range);
+    if (result)
+    {
+        atom_fail = enif_make_atom(env, "failed_to_init_pwm_pin");
+        err_code = enif_make_int(env, result);
+        return enif_make_tuple2(env,
+                                atom_error,
+                                enif_make_tuple2(env, atom_fail, err_code));
+    }
+    else
+    {
+        return atom_ok;
+    }
+}
+
+static ERL_NIF_TERM
+soft_pwm_write_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+    int pin, value;
+    if (!enif_get_int(env, argv[0], &pin) ||
+        !enif_get_int(env, argv[1], &value))
+    {
+        return enif_make_badarg(env);
+    }
+    softPwmWrite(pin, value);
+    return atom_ok;
+}
+
 static ErlNifFunc nif_funcs[] =
     {
         // the basics: pins and stuff
@@ -238,7 +283,10 @@ static ErlNifFunc nif_funcs[] =
         {"lcd_puts_nif",            3, lcd_puts_nif},
         // shift
         {"shift_in_nif",            3, shift_in_nif},
-        {"shift_out_nif",           4, shift_out_nif}
+        {"shift_out_nif",           4, shift_out_nif},
+        // soft pwm
+        {"soft_pwm_create_nif",     3, soft_pwm_create_nif},
+        {"soft_pwm_write_nif",      2, soft_pwm_write_nif}
     };
 
 ERL_NIF_INIT(wpi, nif_funcs, load, NULL, NULL, NULL)
