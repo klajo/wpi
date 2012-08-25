@@ -26,6 +26,7 @@
 static int
 load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
 {
+    atom_ok = enif_make_atom(env, "ok");
     return wiringPiSetup(); // returns -1 in case of error ==> loading fails
 }
 
@@ -39,7 +40,7 @@ pin_mode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
     pinMode(pin, mode);
-    return enif_make_atom(env, "ok");
+    return atom_ok;
 }
 
 static ERL_NIF_TERM
@@ -52,7 +53,7 @@ digital_write_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
     digitalWrite(pin, value);
-    return enif_make_atom(env, "ok");
+    return atom_ok;
 }
 
 static ERL_NIF_TERM
@@ -65,7 +66,7 @@ pwm_write_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
     pwmWrite(pin, value);
-    return enif_make_atom(env, "ok");
+    return atom_ok;
 }
 
 static ERL_NIF_TERM
@@ -90,7 +91,7 @@ pull_up_dn_control_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
     pullUpDnControl(pin, mode);
-    return enif_make_atom(env, "ok");
+    return atom_ok;
 }
 
 static ERL_NIF_TERM
@@ -130,7 +131,7 @@ lcd_home_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
     lcdHome(handle);
-    return enif_make_atom(env, "ok");
+    return atom_ok;
 }
 
 static ERL_NIF_TERM
@@ -142,7 +143,7 @@ lcd_clear_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
     lcdClear(handle);
-    return enif_make_atom(env, "ok");
+    return atom_ok;
 }
 
 static ERL_NIF_TERM
@@ -156,7 +157,7 @@ lcd_position_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
     lcdPosition(handle, x, y);
-    return enif_make_atom(env, "ok");
+    return atom_ok;
 }
 
 static ERL_NIF_TERM
@@ -169,7 +170,7 @@ lcd_put_char_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
     lcdPutchar(handle, (uint8_t)character);
-    return enif_make_atom(env, "ok");
+    return atom_ok;
 }
 
 static ERL_NIF_TERM
@@ -187,7 +188,7 @@ lcd_puts_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
     lcdPuts(handle, str);
-    return enif_make_atom(env, "ok");
+    return atom_ok;
 }
 
 static ERL_NIF_TERM
@@ -217,7 +218,7 @@ shift_out_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     }
     shiftOut((uint8_t)data_pin, (uint8_t)clock_pin,
              (uint8_t)order, (uint8_t)value);
-    return enif_make_atom(env, "ok");
+    return atom_ok;
 }
 
 static ErlNifFunc nif_funcs[] =
