@@ -45,22 +45,38 @@
 -export([soft_pwm_create/3]).
 -export([soft_pwm_write/2]).
 
+%% serial
+-export([serial_open/2]).
+-export([serial_close/1]).
+-export([serial_flush/1]).
+-export([serial_put_char/2]).
+-export([serial_puts/2]).
+-export([serial_printf/3]).
+-export([serial_format/3]).
+-export([serial_data_avail/1]).
+-export([serial_get_char/1]).
+
 -define(nif_stub,
         erlang:nif_error({nif_not_loaded, module, ?MODULE, line, ?LINE})).
 
 -on_load(on_load/0).
 
--type wpi_pin_mode()      :: 0..2     % WPI_INPUT | WPI_OUTPUT | WPI_PWM_OUTPUT
-                             | input | output | pwm_output.
--type wpi_pin_number()    :: integer().
--type wpi_digital_value() :: 0..1.    % WPI_LOW | WPI_HIGH
--type wpi_pwm_value()     :: 0..1023.
--type wpi_pud_mode()      :: 0..2     % WPI_PUD_OFF | WPI_PUD_DOWN | WPI_PUD_UP
-                             | off | down | up.
--opaque wpi_lcd_handle()  :: integer().
--type wpi_bit_order()     :: 0..1     % WPI_LSB_FIRST | WPI_MSB_FIRST
-                             | lsb_first | msb_first.
--type wpi_uint8()         :: 0..255.
+-type wpi_pin_mode()        :: 0..2     % WPI_INPUT | WPI_OUTPUT | WPI_PWM_OUTPUT
+                               | input | output | pwm_output.
+-type wpi_pin_number()      :: integer().
+-type wpi_digital_value()   :: 0..1.    % WPI_LOW | WPI_HIGH
+-type wpi_pwm_value()       :: 0..1023.
+-type wpi_pud_mode()        :: 0..2     % WPI_PUD_OFF | WPI_PUD_DOWN | WPI_PUD_UP
+                               | off | down | up.
+-opaque wpi_lcd_handle()    :: integer().
+-type wpi_bit_order()       :: 0..1     % WPI_LSB_FIRST | WPI_MSB_FIRST
+                               | lsb_first | msb_first.
+-type wpi_uint8()           :: 0..255.
+
+-opaque wpi_serial_handle() :: integer().
+
+-type baud()                :: integer().
+
 
 on_load() ->
     ok = erlang:load_nif(filename:join(code:priv_dir(wpi), "./wpi_drv"), 0).
@@ -222,3 +238,55 @@ soft_pwm_write(Pin, Value) when is_integer(Pin), is_integer(Value) ->
 
 soft_pwm_create_nif(_Pin, _InitValue, _Range) -> ?nif_stub.
 soft_pwm_write_nif(_Pin, _Value)              -> ?nif_stub.
+
+%% serial
+-spec serial_open(string(), baud()) -> ok.
+serial_open(Device, Baud) 
+  when is_list(Device), is_integer(Baud) ->
+  serial_open_nif(Baud, length(Device), Device).
+
+-spec serial_close(wpi_serial_handle()) -> ok.
+serial_close(Handle) when is_integer(Handle) ->
+  serial_close_nif(Handle).
+
+-spec serial_flush(wpi_serial_handle()) -> ok.
+serial_flush(Handle) when is_integer(Handle) ->
+  serial_flush_nif(Handle).
+
+-spec serial_put_char(wpi_serial_handle(), 0..255) -> ok.
+serial_put_char(Handle, Char) ->
+  serial_put_char_nif(Handle, Char).
+
+-spec serial_puts(wpi_serial_handle(), string()) -> ok.
+serial_puts(Handle, String) ->
+  serial_puts_nif(Handle, length(String), String).
+
+-spec serial_printf(wpi_serial_handle(), string(), list(any())) -> ok.
+serial_printf(_Handle, _Format, _Args) ->
+  erlang:error(not_supported).
+
+-spec serial_format(wpi_serial_handle(), string(), list(any())) -> ok.
+serial_format(Handle, Format, Args) ->
+  serial_puts(Handle, lists:flatten(io_lib:format(Format, Args))).
+
+-spec serial_data_avail(wpi_serial_handle()) -> integer().
+serial_data_avail(Handle) when is_integer(Handle) ->
+  serial_data_avail_nif(Handle).
+
+-spec serial_get_char(wpi_serial_handle()) -> 0..255.
+serial_get_char(Handle) when is_integer(Handle)  ->
+  serial_get_char_nif(Handle).
+
+serial_open_nif(_Baud, _StringLen, _Device) -> ?nif_stub.
+
+serial_close_nif(_Handle) -> ?nif_stub.
+
+serial_flush_nif(_Handle) -> ?nif_stub.
+
+serial_put_char_nif(_Handle, _Char) -> ?nif_stub.
+
+serial_puts_nif(_Handle, _StringLen, _String) -> ?nif_stub.
+
+serial_data_avail_nif(_Handle) -> ?nif_stub.
+
+serial_get_char_nif(_Handle) -> ?nif_stub.
