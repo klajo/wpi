@@ -45,6 +45,7 @@ Functionality
 * control and write to LCDs
 * shift in/out bits (untested)
 * soft PWM
+* read from and write to a serial console
 
 Caveats
 -------
