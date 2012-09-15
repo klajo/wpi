@@ -119,7 +119,7 @@ pull_up_dn_control_nif(_Pin, _Mode) -> ?nif_stub.
 -spec lcd_init(integer(), integer(),
                wpi_pin_number(), wpi_pin_number(),
                wpi_pin_number(), wpi_pin_number(),
-               wpi_pin_number(), wpi_pin_number()) -> ok.
+               wpi_pin_number(), wpi_pin_number()) -> wpi_lcd_handle().
 lcd_init(NumRows, NumCols, RsPin, EPin, D0Pin, D1Pin, D2Pin, D3Pin)
   when is_integer(NumRows), NumRows > 0, is_integer(NumCols), NumCols > 0,
        is_integer(RsPin), is_integer(EPin),
@@ -133,7 +133,7 @@ lcd_init(NumRows, NumCols, RsPin, EPin, D0Pin, D1Pin, D2Pin, D3Pin)
                wpi_pin_number(), wpi_pin_number(),
                wpi_pin_number(), wpi_pin_number(),
                wpi_pin_number(), wpi_pin_number(),
-               wpi_pin_number(), wpi_pin_number()) -> ok.
+               wpi_pin_number(), wpi_pin_number()) -> wpi_lcd_handle().
 lcd_init(NumRows, NumCols, RsPin, EPin,
          D0Pin, D1Pin, D2Pin, D3Pin, D4Pin, D5Pin, D6Pin, D7Pin)
   when is_integer(NumRows), NumRows > 0, is_integer(NumCols), NumCols > 0,
