@@ -80,7 +80,9 @@
 
 -opaque wpi_serial_handle() :: integer().
 
--type baud()                :: integer().
+-type wpi_baud()            :: integer().
+
+-type wpi_spi_channel()     :: 0..1.
 
 
 on_load() ->
@@ -245,7 +247,7 @@ soft_pwm_create_nif(_Pin, _InitValue, _Range) -> ?nif_stub.
 soft_pwm_write_nif(_Pin, _Value)              -> ?nif_stub.
 
 %% serial
--spec serial_open(string(), baud()) -> ok.
+-spec serial_open(string(), wpi_baud()) -> ok.
 serial_open(Device, Baud) 
   when is_list(Device), is_integer(Baud) ->
   serial_open_nif(Baud, length(Device), Device).
@@ -297,15 +299,22 @@ serial_data_avail_nif(_Handle) -> ?nif_stub.
 serial_get_char_nif(_Handle) -> ?nif_stub.
 
 %% SPI
-spi_get_fd(Channel) ->
+-spec spi_get_fd(wpi_spi_channel()) -> integer().
+spi_get_fd(Channel) when (Channel == 0 orelse Channel == 1) ->
     spi_get_fd_nif(Channel).
 
-spi_data_rw(Channel, Data, Len) ->
+-spec spi_data_rw(wpi_spi_channel(), binary(), integer()) ->
+		  {ok, binary()} |
+                  {error, {failed_to_read_write_data, integer()}}.
+spi_data_rw(Channel, Data, Len) when (Channel == 0 orelse Channel == 1),
+  is_binary(Data), is_integer(Len), Len > 0 ->
     spi_data_rw_nif(Channel, Data, Len).
 
-spi_setup(Channel, Speed) ->
+-spec spi_setup(wpi_spi_channel(), integer()) -> integer().
+spi_setup(Channel, Speed) when (Channel == 0 orelse Channel == 1),
+  is_integer(Speed), Speed > 0 ->
     spi_setup_nif(Channel, Speed).
 
 spi_get_fd_nif(_Channel) -> ?nif_stub.
-spi_data_rw_nif(Channel, Data, Len) -> ?nif_stub.
-spi_setup_nif(Channel, Speed) -> ?nif_stub.
+spi_data_rw_nif(_Channel, _Data, _Len) -> ?nif_stub.
+spi_setup_nif(_Channel, _Speed) -> ?nif_stub.
