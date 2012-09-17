@@ -56,6 +56,11 @@
 -export([serial_data_avail/1]).
 -export([serial_get_char/1]).
 
+%% SPI
+-export([spi_get_fd/1]).
+-export([spi_data_rw/3]).
+-export([spi_setup/2]).
+
 -define(nif_stub,
         erlang:nif_error({nif_not_loaded, module, ?MODULE, line, ?LINE})).
 
@@ -290,3 +295,17 @@ serial_puts_nif(_Handle, _StringLen, _String) -> ?nif_stub.
 serial_data_avail_nif(_Handle) -> ?nif_stub.
 
 serial_get_char_nif(_Handle) -> ?nif_stub.
+
+%% SPI
+spi_get_fd(Channel) ->
+    spi_get_fd_nif(Channel).
+
+spi_data_rw(Channel, Data, Len) ->
+    spi_data_rw_nif(Channel, Data, Len).
+
+spi_setup(Channel, Speed) ->
+    spi_setup_nif(Channel, Speed).
+
+spi_get_fd_nif(_Channel) -> ?nif_stub.
+spi_data_rw_nif(Channel, Data, Len) -> ?nif_stub.
+spi_setup_nif(Channel, Speed) -> ?nif_stub.
