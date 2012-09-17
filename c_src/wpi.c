@@ -385,6 +385,7 @@ spi_data_rw_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int channel, len;
     ErlNifBinary buf;
+    ERL_NIF_TERM atom_fail, err_code;
 
     if (!enif_get_int(env, argv[0], &channel) ||
 	!enif_inspect_binary(env, argv[1], &buf) ||
@@ -395,8 +396,19 @@ spi_data_rw_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
     enif_realloc_binary(&buf, len);
 
-    wiringPiSPIDataRW(channel, buf.data, len);
-    return enif_make_binary(env, &buf);
+    int result = wiringPiSPIDataRW(channel, buf.data, len);
+    if (result >= 0) {
+        return enif_make_tuple2(env,
+				atom_ok,
+				enif_make_binary(env, &buf));
+    } else {
+        atom_fail = enif_make_atom(env, "failed_to_read_write_data");
+        err_code = enif_make_int(env, result);
+	enif_release_binary(&buf);
+        return enif_make_tuple2(env,
+                                atom_error,
+                                enif_make_tuple2(env, atom_fail, err_code));
+    }
 }
 
 static ERL_NIF_TERM
