@@ -272,8 +272,8 @@ soft_pwm_write_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 static ERL_NIF_TERM
 serial_open_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-  int str_len, baud, handle;
-    if (!enif_get_int(env, argv[0], &baud) || 
+    int str_len, baud, handle;
+    if (!enif_get_int(env, argv[0], &baud) ||
         !enif_get_int(env, argv[1], &str_len))
     {
         return enif_make_badarg(env);
@@ -388,7 +388,7 @@ spi_data_rw_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     ERL_NIF_TERM atom_fail, err_code;
 
     if (!enif_get_int(env, argv[0], &channel) ||
-	!enif_inspect_binary(env, argv[1], &buf) ||
+        !enif_inspect_binary(env, argv[1], &buf) ||
         !enif_get_int(env, argv[2], &len))
     {
         return enif_make_badarg(env);
@@ -399,12 +399,12 @@ spi_data_rw_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     int result = wiringPiSPIDataRW(channel, buf.data, len);
     if (result >= 0) {
         return enif_make_tuple2(env,
-				atom_ok,
-				enif_make_binary(env, &buf));
+                                atom_ok,
+                                enif_make_binary(env, &buf));
     } else {
         atom_fail = enif_make_atom(env, "failed_to_read_write_data");
         err_code = enif_make_int(env, result);
-	enif_release_binary(&buf);
+        enif_release_binary(&buf);
         return enif_make_tuple2(env,
                                 atom_error,
                                 enif_make_tuple2(env, atom_fail, err_code));
@@ -453,10 +453,10 @@ static ErlNifFunc nif_funcs[] =
         {"serial_puts_nif",         3, serial_puts_nif},
         {"serial_data_avail_nif",   1, serial_data_avail_nif},
         {"serial_get_char_nif",     1, serial_get_char_nif},
-	// SPI
-	{"spi_get_fd_nif",          1, spi_get_fd_nif},
-	{"spi_data_rw_nif",         3, spi_data_rw_nif},
-	{"spi_setup_nif",           2, spi_setup_nif}
+        // SPI
+        {"spi_get_fd_nif",          1, spi_get_fd_nif},
+        {"spi_data_rw_nif",         3, spi_data_rw_nif},
+        {"spi_setup_nif",           2, spi_setup_nif}
     };
 
 ERL_NIF_INIT(wpi, nif_funcs, load, NULL, NULL, NULL)

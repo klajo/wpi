@@ -248,55 +248,51 @@ soft_pwm_write_nif(_Pin, _Value)              -> ?nif_stub.
 
 %% serial
 -spec serial_open(string(), wpi_baud()) -> ok.
-serial_open(Device, Baud) 
-  when is_list(Device), is_integer(Baud) ->
-  serial_open_nif(Baud, length(Device), Device).
+serial_open(Device, Baud) when is_list(Device), is_integer(Baud) ->
+    serial_open_nif(Baud, length(Device), Device).
 
 -spec serial_close(wpi_serial_handle()) -> ok.
 serial_close(Handle) when is_integer(Handle) ->
-  serial_close_nif(Handle).
+    serial_close_nif(Handle).
 
 -spec serial_flush(wpi_serial_handle()) -> ok.
 serial_flush(Handle) when is_integer(Handle) ->
-  serial_flush_nif(Handle).
+    serial_flush_nif(Handle).
 
 -spec serial_put_char(wpi_serial_handle(), 0..255) -> ok.
-serial_put_char(Handle, Char) ->
-  serial_put_char_nif(Handle, Char).
+serial_put_char(Handle, Char)
+  when is_integer(Handle), is_integer(Char), Char >= 0, Char =< 255  ->
+    serial_put_char_nif(Handle, Char).
 
 -spec serial_puts(wpi_serial_handle(), string()) -> ok.
-serial_puts(Handle, String) ->
-  serial_puts_nif(Handle, length(String), String).
+serial_puts(Handle, String)
+  when is_integer(Handle), is_list(String) ->
+    serial_puts_nif(Handle, length(String), String).
 
 -spec serial_printf(wpi_serial_handle(), string(), list(any())) -> ok.
 serial_printf(_Handle, _Format, _Args) ->
-  erlang:error(not_supported).
+    erlang:error(not_supported).
 
 -spec serial_format(wpi_serial_handle(), string(), list(any())) -> ok.
-serial_format(Handle, Format, Args) ->
-  serial_puts(Handle, lists:flatten(io_lib:format(Format, Args))).
+serial_format(Handle, Format, Args)
+  when is_integer(Handle), is_list(Format), is_list(Args) ->
+    serial_puts(Handle, lists:flatten(io_lib:format(Format, Args))).
 
 -spec serial_data_avail(wpi_serial_handle()) -> integer().
 serial_data_avail(Handle) when is_integer(Handle) ->
-  serial_data_avail_nif(Handle).
+    serial_data_avail_nif(Handle).
 
 -spec serial_get_char(wpi_serial_handle()) -> 0..255.
 serial_get_char(Handle) when is_integer(Handle)  ->
-  serial_get_char_nif(Handle).
+    serial_get_char_nif(Handle).
 
-serial_open_nif(_Baud, _StringLen, _Device) -> ?nif_stub.
-
-serial_close_nif(_Handle) -> ?nif_stub.
-
-serial_flush_nif(_Handle) -> ?nif_stub.
-
-serial_put_char_nif(_Handle, _Char) -> ?nif_stub.
-
+serial_open_nif(_Baud, _StringLen, _Device)   -> ?nif_stub.
+serial_close_nif(_Handle)                     -> ?nif_stub.
+serial_flush_nif(_Handle)                     -> ?nif_stub.
+serial_put_char_nif(_Handle, _Char)           -> ?nif_stub.
 serial_puts_nif(_Handle, _StringLen, _String) -> ?nif_stub.
-
-serial_data_avail_nif(_Handle) -> ?nif_stub.
-
-serial_get_char_nif(_Handle) -> ?nif_stub.
+serial_data_avail_nif(_Handle)                -> ?nif_stub.
+serial_get_char_nif(_Handle)                  -> ?nif_stub.
 
 %% SPI
 -spec spi_get_fd(wpi_spi_channel()) -> integer().
@@ -304,17 +300,17 @@ spi_get_fd(Channel) when (Channel == 0 orelse Channel == 1) ->
     spi_get_fd_nif(Channel).
 
 -spec spi_data_rw(wpi_spi_channel(), binary()) ->
-		  {ok, binary()} |
+                  {ok, binary()} |
                   {error, {failed_to_read_write_data, integer()}}.
 spi_data_rw(Channel, WriteData) when (Channel == 0 orelse Channel == 1),
-  is_binary(WriteData) ->
+                                     is_binary(WriteData) ->
     spi_data_rw_nif(Channel, WriteData, byte_size(WriteData)).
 
 -spec spi_setup(wpi_spi_channel(), integer()) -> integer().
 spi_setup(Channel, Speed) when (Channel == 0 orelse Channel == 1),
-  is_integer(Speed), Speed > 0 ->
+                               is_integer(Speed), Speed > 0 ->
     spi_setup_nif(Channel, Speed).
 
-spi_get_fd_nif(_Channel) -> ?nif_stub.
+spi_get_fd_nif(_Channel)                    -> ?nif_stub.
 spi_data_rw_nif(_Channel, _WriteData, _Len) -> ?nif_stub.
-spi_setup_nif(_Channel, _Speed) -> ?nif_stub.
+spi_setup_nif(_Channel, _Speed)             -> ?nif_stub.
