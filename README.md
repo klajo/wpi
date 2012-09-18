@@ -46,7 +46,7 @@ Functionality
 * shift in/out bits (untested)
 * soft PWM
 * read from and write to a serial console
-* Write and read a block of data form the SPI bus
+* write and read binary data from the SPI bus
 
 Caveats
 -------
