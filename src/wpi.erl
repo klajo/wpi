@@ -58,7 +58,7 @@
 
 %% SPI
 -export([spi_get_fd/1]).
--export([spi_data_rw/3]).
+-export([spi_data_rw/2]).
 -export([spi_setup/2]).
 
 -define(nif_stub,
@@ -303,12 +303,12 @@ serial_get_char_nif(_Handle) -> ?nif_stub.
 spi_get_fd(Channel) when (Channel == 0 orelse Channel == 1) ->
     spi_get_fd_nif(Channel).
 
--spec spi_data_rw(wpi_spi_channel(), binary(), integer()) ->
+-spec spi_data_rw(wpi_spi_channel(), binary()) ->
 		  {ok, binary()} |
                   {error, {failed_to_read_write_data, integer()}}.
-spi_data_rw(Channel, Data, Len) when (Channel == 0 orelse Channel == 1),
-  is_binary(Data), is_integer(Len), Len > 0 ->
-    spi_data_rw_nif(Channel, Data, Len).
+spi_data_rw(Channel, WriteData) when (Channel == 0 orelse Channel == 1),
+  is_binary(WriteData) ->
+    spi_data_rw_nif(Channel, WriteData, byte_size(WriteData)).
 
 -spec spi_setup(wpi_spi_channel(), integer()) -> integer().
 spi_setup(Channel, Speed) when (Channel == 0 orelse Channel == 1),
@@ -316,5 +316,5 @@ spi_setup(Channel, Speed) when (Channel == 0 orelse Channel == 1),
     spi_setup_nif(Channel, Speed).
 
 spi_get_fd_nif(_Channel) -> ?nif_stub.
-spi_data_rw_nif(_Channel, _Data, _Len) -> ?nif_stub.
+spi_data_rw_nif(_Channel, _WriteData, _Len) -> ?nif_stub.
 spi_setup_nif(_Channel, _Speed) -> ?nif_stub.
