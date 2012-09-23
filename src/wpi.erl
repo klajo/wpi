@@ -45,22 +45,45 @@
 -export([soft_pwm_create/3]).
 -export([soft_pwm_write/2]).
 
+%% serial
+-export([serial_open/2]).
+-export([serial_close/1]).
+-export([serial_flush/1]).
+-export([serial_put_char/2]).
+-export([serial_puts/2]).
+-export([serial_printf/3]).
+-export([serial_format/3]).
+-export([serial_data_avail/1]).
+-export([serial_get_char/1]).
+
+%% SPI
+-export([spi_get_fd/1]).
+-export([spi_data_rw/2]).
+-export([spi_setup/2]).
+
 -define(nif_stub,
         erlang:nif_error({nif_not_loaded, module, ?MODULE, line, ?LINE})).
 
 -on_load(on_load/0).
 
--type wpi_pin_mode()      :: 0..2     % WPI_INPUT | WPI_OUTPUT | WPI_PWM_OUTPUT
-                             | input | output | pwm_output.
--type wpi_pin_number()    :: integer().
--type wpi_digital_value() :: 0..1.    % WPI_LOW | WPI_HIGH
--type wpi_pwm_value()     :: 0..1023.
--type wpi_pud_mode()      :: 0..2     % WPI_PUD_OFF | WPI_PUD_DOWN | WPI_PUD_UP
-                             | off | down | up.
--opaque wpi_lcd_handle()  :: integer().
--type wpi_bit_order()     :: 0..1     % WPI_LSB_FIRST | WPI_MSB_FIRST
-                             | lsb_first | msb_first.
--type wpi_uint8()         :: 0..255.
+-type wpi_pin_mode()        :: 0..2     % WPI_INPUT | WPI_OUTPUT | WPI_PWM_OUTPUT
+                               | input | output | pwm_output.
+-type wpi_pin_number()      :: integer().
+-type wpi_digital_value()   :: 0..1.    % WPI_LOW | WPI_HIGH
+-type wpi_pwm_value()       :: 0..1023.
+-type wpi_pud_mode()        :: 0..2     % WPI_PUD_OFF | WPI_PUD_DOWN | WPI_PUD_UP
+                               | off | down | up.
+-opaque wpi_lcd_handle()    :: integer().
+-type wpi_bit_order()       :: 0..1     % WPI_LSB_FIRST | WPI_MSB_FIRST
+                               | lsb_first | msb_first.
+-type wpi_uint8()           :: 0..255.
+
+-opaque wpi_serial_handle() :: integer().
+
+-type wpi_baud()            :: integer().
+
+-type wpi_spi_channel()     :: 0..1.
+
 
 on_load() ->
     ok = erlang:load_nif(filename:join(code:priv_dir(wpi), "./wpi_drv"), 0).
@@ -119,7 +142,7 @@ pull_up_dn_control_nif(_Pin, _Mode) -> ?nif_stub.
 -spec lcd_init(integer(), integer(),
                wpi_pin_number(), wpi_pin_number(),
                wpi_pin_number(), wpi_pin_number(),
-               wpi_pin_number(), wpi_pin_number()) -> ok.
+               wpi_pin_number(), wpi_pin_number()) -> wpi_lcd_handle().
 lcd_init(NumRows, NumCols, RsPin, EPin, D0Pin, D1Pin, D2Pin, D3Pin)
   when is_integer(NumRows), NumRows > 0, is_integer(NumCols), NumCols > 0,
        is_integer(RsPin), is_integer(EPin),
@@ -133,7 +156,7 @@ lcd_init(NumRows, NumCols, RsPin, EPin, D0Pin, D1Pin, D2Pin, D3Pin)
                wpi_pin_number(), wpi_pin_number(),
                wpi_pin_number(), wpi_pin_number(),
                wpi_pin_number(), wpi_pin_number(),
-               wpi_pin_number(), wpi_pin_number()) -> ok.
+               wpi_pin_number(), wpi_pin_number()) -> wpi_lcd_handle().
 lcd_init(NumRows, NumCols, RsPin, EPin,
          D0Pin, D1Pin, D2Pin, D3Pin, D4Pin, D5Pin, D6Pin, D7Pin)
   when is_integer(NumRows), NumRows > 0, is_integer(NumCols), NumCols > 0,
@@ -222,3 +245,72 @@ soft_pwm_write(Pin, Value) when is_integer(Pin), is_integer(Value) ->
 
 soft_pwm_create_nif(_Pin, _InitValue, _Range) -> ?nif_stub.
 soft_pwm_write_nif(_Pin, _Value)              -> ?nif_stub.
+
+%% serial
+-spec serial_open(string(), wpi_baud()) -> ok.
+serial_open(Device, Baud) when is_list(Device), is_integer(Baud) ->
+    serial_open_nif(Baud, length(Device), Device).
+
+-spec serial_close(wpi_serial_handle()) -> ok.
+serial_close(Handle) when is_integer(Handle) ->
+    serial_close_nif(Handle).
+
+-spec serial_flush(wpi_serial_handle()) -> ok.
+serial_flush(Handle) when is_integer(Handle) ->
+    serial_flush_nif(Handle).
+
+-spec serial_put_char(wpi_serial_handle(), 0..255) -> ok.
+serial_put_char(Handle, Char)
+  when is_integer(Handle), is_integer(Char), Char >= 0, Char =< 255  ->
+    serial_put_char_nif(Handle, Char).
+
+-spec serial_puts(wpi_serial_handle(), string()) -> ok.
+serial_puts(Handle, String)
+  when is_integer(Handle), is_list(String) ->
+    serial_puts_nif(Handle, length(String), String).
+
+-spec serial_printf(wpi_serial_handle(), string(), list(any())) -> ok.
+serial_printf(_Handle, _Format, _Args) ->
+    erlang:error(not_supported).
+
+-spec serial_format(wpi_serial_handle(), string(), list(any())) -> ok.
+serial_format(Handle, Format, Args)
+  when is_integer(Handle), is_list(Format), is_list(Args) ->
+    serial_puts(Handle, lists:flatten(io_lib:format(Format, Args))).
+
+-spec serial_data_avail(wpi_serial_handle()) -> integer().
+serial_data_avail(Handle) when is_integer(Handle) ->
+    serial_data_avail_nif(Handle).
+
+-spec serial_get_char(wpi_serial_handle()) -> 0..255.
+serial_get_char(Handle) when is_integer(Handle)  ->
+    serial_get_char_nif(Handle).
+
+serial_open_nif(_Baud, _StringLen, _Device)   -> ?nif_stub.
+serial_close_nif(_Handle)                     -> ?nif_stub.
+serial_flush_nif(_Handle)                     -> ?nif_stub.
+serial_put_char_nif(_Handle, _Char)           -> ?nif_stub.
+serial_puts_nif(_Handle, _StringLen, _String) -> ?nif_stub.
+serial_data_avail_nif(_Handle)                -> ?nif_stub.
+serial_get_char_nif(_Handle)                  -> ?nif_stub.
+
+%% SPI
+-spec spi_get_fd(wpi_spi_channel()) -> integer().
+spi_get_fd(Channel) when (Channel == 0 orelse Channel == 1) ->
+    spi_get_fd_nif(Channel).
+
+-spec spi_data_rw(wpi_spi_channel(), binary()) ->
+                  {ok, binary()} |
+                  {error, {failed_to_read_write_data, integer()}}.
+spi_data_rw(Channel, WriteData) when (Channel == 0 orelse Channel == 1),
+                                     is_binary(WriteData) ->
+    spi_data_rw_nif(Channel, WriteData, byte_size(WriteData)).
+
+-spec spi_setup(wpi_spi_channel(), integer()) -> integer().
+spi_setup(Channel, Speed) when (Channel == 0 orelse Channel == 1),
+                               is_integer(Speed), Speed > 0 ->
+    spi_setup_nif(Channel, Speed).
+
+spi_get_fd_nif(_Channel)                    -> ?nif_stub.
+spi_data_rw_nif(_Channel, _WriteData, _Len) -> ?nif_stub.
+spi_setup_nif(_Channel, _Speed)             -> ?nif_stub.

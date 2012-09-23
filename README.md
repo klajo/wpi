@@ -45,6 +45,8 @@ Functionality
 * control and write to LCDs
 * shift in/out bits (untested)
 * soft PWM
+* read from and write to a serial console
+* write and read binary data from the SPI bus
 
 Caveats
 -------
