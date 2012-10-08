@@ -1,7 +1,11 @@
 wpi - an Erlang NIF for the WiringPi library for the Raspberry Pi
 =================================================================
 
-This application is an Erlang wrapper around the [WiringPi][1] library.
+This application is an Erlang wrapper around the [WiringPi][1] library
+which is a Raspberry Pi dialect of the Wiring library for Arduino. wpi
+makes it possible to read from and write to GPIO pins, write to LCDs,
+shift bits in and out or control other devices over serial interfaces
+or SPI and all this from a Raspberry Pi running Erlang.
 
 Getting started
 ---------------
