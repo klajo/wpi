@@ -399,7 +399,9 @@ spi_data_rw(Channel, WriteData) when (Channel == 0 orelse Channel == 1),
     spi_data_rw_nif(Channel, WriteData, byte_size(WriteData)).
 
 -spec spi_setup(wpi_spi_channel(), integer()) -> integer().
-%% @doc Open and set up the SPI device.
+%% @doc Open and set up the SPI device. See Gordon's
+%% [https://projects.drogon.net/understanding-spi-on-the-raspberry-pi/
+%% Understanding SPI on the Raspberry Pi] for more information.
 spi_setup(Channel, Speed) when (Channel == 0 orelse Channel == 1),
                                is_integer(Speed), Speed > 0 ->
     spi_setup_nif(Channel, Speed).
