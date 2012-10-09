@@ -81,17 +81,17 @@
 
 -on_load(on_load/0).
 
--type wpi_pin_mode()        :: 0..2     % WPI_INPUT | WPI_OUTPUT | WPI_PWM_OUTPUT
-                               | input | output | pwm_output.
--type wpi_pin_number()      :: integer().
--type wpi_digital_value()   :: 0..1.    % WPI_LOW | WPI_HIGH
--type wpi_pwm_value()       :: 0..1023.
--type wpi_pud_mode()        :: 0..2     % WPI_PUD_OFF | WPI_PUD_DOWN | WPI_PUD_UP
-                               | off | down | up.
--opaque wpi_lcd_handle()    :: integer().
--type wpi_bit_order()       :: 0..1     % WPI_LSB_FIRST | WPI_MSB_FIRST
-                               | lsb_first | msb_first.
--type wpi_uint8()           :: 0..255.
+-type wpi_pin_mode()       :: 0..2     % WPI_INPUT | WPI_OUTPUT | WPI_PWM_OUTPUT
+                            | input | output | pwm_output.
+-type wpi_pin_number()     :: integer().
+-type wpi_digital_value()  :: 0..1.    % WPI_LOW | WPI_HIGH
+-type wpi_pwm_value()      :: 0..1023.
+-type wpi_pud_mode()       :: 0..2     % WPI_PUD_OFF | WPI_PUD_DOWN | WPI_PUD_UP
+                            | off | down | up.
+-opaque wpi_lcd_handle()   :: integer().
+-type wpi_bit_order()      :: 0..1     % WPI_LSB_FIRST | WPI_MSB_FIRST
+                            | lsb_first | msb_first.
+-type wpi_uint8()          :: 0..255.
 
 -opaque wpi_serial_handle() :: integer().
 
