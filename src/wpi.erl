@@ -373,6 +373,15 @@ serial_data_avail(Handle) when is_integer(Handle) ->
 
 -spec serial_get_char(wpi_serial_handle()) -> 0..255.
 %% @doc Return the next character available on the serial device.
+%%
+%% Warning: This call will block for up to 10 seconds if no data is
+%% available. This has the effect that the emulator will be blocked
+%% (for up to 10s!) and no other process may run (unless there are
+%% more cores/schedulers available). From wiringSerial.c:
+%% ```
+%%    options.c_cc [VTIME] = 100 ;        // Ten seconds (100 deciseconds)
+%% '''
+%% Todo: Fix the above warning.
 serial_get_char(Handle) when is_integer(Handle)  ->
     serial_get_char_nif(Handle).
 
