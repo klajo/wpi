@@ -24,8 +24,8 @@ useful constants (matches those of WiringPi):
 Then you can start setting up the [pins][4] and use them:
 
     Pin = 7,
-    wpi:pin_mode(Pin, ?WPI_OUTPUT),
-    wpi:digital_write(Pin, ?WPI_HIGH),
+    wpi:pin_mode(Pin, output),
+    wpi:digital_write(Pin, 1),
 
 It helps setting the ERL_LIBS environment variable to tell Erlang
 where to find the code. Assuming you have a copy of the `wpi`
