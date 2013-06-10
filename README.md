@@ -74,7 +74,7 @@ Credits
 
 Credits go to Gordon Henderson for the WiringPi library.
 
-[1]: https://projects.drogon.net/raspberry-pi/wiringpi/
-[2]: https://projects.drogon.net/raspberry-pi/wiringpi/download-and-install/
+[1]: http://wiringpi.com/
+[2]: http://wiringpi.com/download-and-install/
 [3]: https://github.com/basho/rebar/
-[4]: https://projects.drogon.net/raspberry-pi/wiringpi/pins/
+[4]: http://wiringpi.com/pins/
