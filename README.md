@@ -37,10 +37,10 @@ variable like this:
     export ERL_LIBS=/home/src/
 
 If you get an error like this, it means that the library doesn't have
-root access and you have called `wpi:setup/0' or `wpi:setup_gpio/0'.
+root access and you have called `wpi:setup/0` or `wpi:setup_gpio/0`.
 This is solved by running Erlang as root, but please consider the
-security implications of doing so, or by using the `gpio' binary
-followed by `wpi:setup_sys/0' which can be run as a normal user.
+security implications of doing so, or by using the `gpio` binary
+followed by `wpi:setup_sys/0` which can be run as a normal user.
 
     wiringPi: Must be root to call wiringPiSetup(). (Did you forget sudo?)
 
