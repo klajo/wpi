@@ -17,6 +17,7 @@
 // along with wpi.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdint.h>
+#include <errno.h>
 
 #include "erl_nif.h"
 #include <wiringPi.h>
@@ -34,7 +35,40 @@ load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
 {
     atom_ok = enif_make_atom(env, "ok");
     atom_error = enif_make_atom(env, "error");
-    return wiringPiSetup(); // returns -1 in case of error ==> loading fails
+    return 0;
+}
+
+static ERL_NIF_TERM
+mk_setup_return_val(ErlNifEnv* env, int setupReturnCode)
+{
+    ERL_NIF_TERM atom_fail, err_code;
+    if (setupReturnCode == -1)
+    {
+        atom_fail = enif_make_atom(env, "failed_to_setup");
+        err_code = enif_make_int(env, errno);
+        return enif_make_tuple2(env,
+                                atom_error,
+                                enif_make_tuple2(env, atom_fail, err_code));
+    }
+    return atom_ok;
+}
+
+static ERL_NIF_TERM
+setup_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+    return mk_setup_return_val(env, wiringPiSetup());
+}
+
+static ERL_NIF_TERM
+setup_gpio_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+    return mk_setup_return_val(env, wiringPiSetupGpio());
+}
+
+static ERL_NIF_TERM
+setup_sys_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+    return mk_setup_return_val(env, wiringPiSetupSys());
 }
 
 static ERL_NIF_TERM
@@ -426,6 +460,10 @@ spi_setup_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 static ErlNifFunc nif_funcs[] =
     {
+        // setup
+        {"setup_nif",               0, setup_nif},
+        {"setup_gpio_nif",          0, setup_gpio_nif},
+        {"setup_sys_nif",           0, setup_sys_nif},
         // the basics: pins and stuff
         {"pin_mode_nif",            2, pin_mode_nif},
         {"digital_write_nif",       2, digital_write_nif},
