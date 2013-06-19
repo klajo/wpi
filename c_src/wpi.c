@@ -66,6 +66,12 @@ setup_gpio_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 }
 
 static ERL_NIF_TERM
+setup_phys_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+    return mk_setup_return_val(env, wiringPiSetupPhys());
+}
+
+static ERL_NIF_TERM
 setup_sys_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     return mk_setup_return_val(env, wiringPiSetupSys());
@@ -463,6 +469,7 @@ static ErlNifFunc nif_funcs[] =
         // setup
         {"setup_nif",               0, setup_nif},
         {"setup_gpio_nif",          0, setup_gpio_nif},
+        {"setup_phys_nif",          0, setup_phys_nif},
         {"setup_sys_nif",           0, setup_sys_nif},
         // the basics: pins and stuff
         {"pin_mode_nif",            2, pin_mode_nif},

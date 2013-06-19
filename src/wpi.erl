@@ -36,6 +36,7 @@
 %% setup
 -export([setup/0]).
 -export([setup_gpio/0]).
+-export([setup_phys/0]).
 -export([setup_sys/0]).
 
 %% the basics: pins and stuff
@@ -135,6 +136,15 @@ setup() ->
 setup_gpio() ->
     setup_gpio_nif().
 
+-spec(setup_phys() -> ok | {error, term()}).
+%% @doc Identical to {@link setup/0}, however it allows the calling
+%% programs to use the physical pin numbers on the P1 connector only.
+%%
+%% As for {@link setup/0}, this function needs to be called with root
+%% priviliges.
+setup_phys() ->
+    setup_phys_nif().
+
 -spec(setup_sys() -> ok | {error, term()}).
 %% @doc This initialises wiringPi but uses the /sys/class/gpio
 %% interface rather than accessing the hardware directly. This can be
@@ -158,6 +168,7 @@ setup_sys() ->
 
 setup_nif()      -> ?nif_stub.
 setup_gpio_nif() -> ?nif_stub.
+setup_phys_nif() -> ?nif_stub.
 setup_sys_nif()  -> ?nif_stub.
 
 %% The basics: pins and stuff
