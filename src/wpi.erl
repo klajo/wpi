@@ -20,20 +20,24 @@
 %%% An Erlang NIF for the WiringPi library for the Raspberry Pi
 %%%
 %%% This application is an Erlang wrapper around the
-%%% [https://projects.drogon.net/raspberry-pi/wiringpi/ WiringPi]
-%%% library which is a Raspberry Pi dialect of the Wiring library for
-%%% Arduino. wpi makes it possible to read from and write to GPIO
-%%% pins, write to LCDs, shift bits in and out or control other
-%%% devices over serial interfaces or SPI and all this from a
-%%% Raspberry Pi running Erlang.
+%%% [http://wiringpi.com/ WiringPi] library which is a Raspberry Pi
+%%% dialect of the Wiring library for Arduino. wpi makes it possible
+%%% to read from and write to GPIO pins, write to LCDs, shift bits in
+%%% and out or control other devices over serial interfaces or SPI and
+%%% all this from a Raspberry Pi running Erlang.
 %%%
 %%% The functions in this API follows the WiringPi
-%%% [https://projects.drogon.net/raspberry-pi/wiringpi/pins/ pin
-%%% numbering scheme].
+%%% [http://wiringpi.com/pins/ pin numbering scheme].
 
 -module(wpi).
 
 -include_lib("wpi/include/wpi.hrl").
+
+%% setup
+-export([setup/0]).
+-export([setup_gpio/0]).
+-export([setup_phys/0]).
+-export([setup_sys/0]).
 
 %% the basics: pins and stuff
 -export([pin_mode/2]).
@@ -101,9 +105,73 @@
 
 
 on_load() ->
+    %% Force wiringPi to return -1 on initalization failure. In
+    %% wiringPi this was not necessary, but starting at v2 the setup
+    %% functions exit instead.  a change between wiringPi v1 and v2.
+    %% Use return values in order to provide more erlangy error handling.
+    os:putenv("WIRINGPI_CODES", "true"),
     ok = erlang:load_nif(filename:join(code:priv_dir(wpi), "./wpi_drv"), 0).
 
-%% the basics: pins and stuff
+-spec(setup() -> ok | {error, term()}).
+%% @doc This initialises wiringPi and assumes that the calling program
+%% is going to be using the wiringPi pin numbering scheme. This is a
+%% simplified numbering scheme which provides a mapping from virtual
+%% pin numbers 0 through 16 to the real underlying Broadcom GPIO pin
+%% numbers. See the pins page on the wiringPi web page for a table
+%% which maps the wiringPi pin number to the Broadcom GPIO pin number
+%% to the physical location on the edge connector.
+%%
+%% This function needs to be called with root privileges.
+setup() ->
+    setup_nif().
+
+-spec(setup_gpio() -> ok | {error, term()}).
+%% @doc This is identical to {@link setup/0}, however it allows the
+%% calling programs to use the Broadcom GPIO pin numbers directly with
+%% no re-mapping.
+%%
+%% As for {@link setup/0}, this function needs to be called with root
+%% privileges, and note that some pins are different from revision 1
+%% to revision 2 boards.
+setup_gpio() ->
+    setup_gpio_nif().
+
+-spec(setup_phys() -> ok | {error, term()}).
+%% @doc Identical to {@link setup/0}, however it allows the calling
+%% programs to use the physical pin numbers on the P1 connector only.
+%%
+%% As for {@link setup/0}, this function needs to be called with root
+%% priviliges.
+setup_phys() ->
+    setup_phys_nif().
+
+-spec(setup_sys() -> ok | {error, term()}).
+%% @doc This initialises wiringPi but uses the /sys/class/gpio
+%% interface rather than accessing the hardware directly. This can be
+%% called as a non-root user provided the GPIO pins have been exported
+%% before-hand using the gpio program. Pin numbering in this mode is
+%% the native Broadcom GPIO numbers - the same as {@link setup_gpio/0}
+%% above, so be aware of the differences between Rev 1 and Rev 2
+%% boards.
+%%
+%% Note: In this mode you can only use the pins which have been
+%% exported via the /sys/class/gpio interface before you run your
+%% program. You can do this in a separate shell-script, or by using
+%% the {@link wpi_gpio} module.
+%%
+%% Also note that some functions have no effect when using this mode
+%% as they're not currently possible to action unless called with root
+%% privileges (although you can use {@link wpi_gpio} to set/change
+%% modes if needed).
+setup_sys() ->
+    setup_sys_nif().
+
+setup_nif()      -> ?nif_stub.
+setup_gpio_nif() -> ?nif_stub.
+setup_phys_nif() -> ?nif_stub.
+setup_sys_nif()  -> ?nif_stub.
+
+%% The basics: pins and stuff
 -spec pin_mode(wpi_pin_number(), wpi_pin_mode()) -> ok.
 %% @doc Set the mode of a pin to either input, output, or PWM
 %% output. Note that only WiringPi pin 1 (GPIO 18) supports PWM output.
@@ -286,8 +354,8 @@ shift_in(DataPin, ClockPin, Order)
 %% @doc Shift an 8-bit data value out with the data being sent out on
 %% DataPin and the clock being sent out on the ClockPin. Order is
 %% either `lsb_first' or `msb_first'. Data is clocked out on the
-%% rising or falling edge – ie. DataPin is set, then ClockPin is taken
-%% high then low – repeated for the 8 bits.
+%% rising or falling edge - ie. DataPin is set, then ClockPin is taken
+%% high then low - repeated for the 8 bits.
 shift_out(DataPin, ClockPin, lsb_first, Value) ->
     shift_out(DataPin, ClockPin, ?WPI_LSB_FIRST, Value);
 shift_out(DataPin, ClockPin, msb_first, Value) ->

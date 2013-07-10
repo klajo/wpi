@@ -24,6 +24,7 @@ useful constants (matches those of WiringPi):
 Then you can start setting up the [pins][4] and use them:
 
     Pin = 7,
+    wpi:setup(), % or setup_gpio/0 or setup_sys/0
     wpi:pin_mode(Pin, output),
     wpi:digital_write(Pin, 1),
 
@@ -36,11 +37,12 @@ variable like this:
     export ERL_LIBS=/home/src/
 
 If you get an error like this, it means that the library doesn't have
-root access. This is solved by running Erlang as root, but please
-consider the security implications of doing so. A future version of
-the library may have another way of handling this.
+root access and you have called `wpi:setup/0` or `wpi:setup_gpio/0`.
+This is solved by running Erlang as root, but please consider the
+security implications of doing so, or by using the `gpio` binary
+followed by `wpi:setup_sys/0` which can be run as a normal user.
 
-    wiringPiSetup: Unable to open /dev/mem: Permission denied
+    wiringPi: Must be root to call wiringPiSetup(). (Did you forget sudo?)
 
 Functionality
 -----------------------
@@ -59,11 +61,6 @@ This NIF is entirely experimental - use at your own risk.  It has been
 used to both write to (LED), read from (button) pins and control an
 LCD successfully, while some functionality may be untested.
 
-This library currently only supports wiringPiSetup(), not
-wiringPiSetupGpio() nor wiringPiSetupSys(). This means that it's
-currently only possible to use the WiringPi pin numbering scheme
-outlined in the [pins][4] section.
-
 Contributions
 -------------
 
@@ -74,7 +71,7 @@ Credits
 
 Credits go to Gordon Henderson for the WiringPi library.
 
-[1]: https://projects.drogon.net/raspberry-pi/wiringpi/
-[2]: https://projects.drogon.net/raspberry-pi/wiringpi/download-and-install/
+[1]: http://wiringpi.com/
+[2]: http://wiringpi.com/download-and-install/
 [3]: https://github.com/basho/rebar/
-[4]: https://projects.drogon.net/raspberry-pi/wiringpi/pins/
+[4]: http://wiringpi.com/pins/
