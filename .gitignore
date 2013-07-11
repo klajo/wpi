@@ -1,3 +1,6 @@
 priv/
 ebin/
 *.o
+deps/
+rebar
+*~
