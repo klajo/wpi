@@ -64,7 +64,8 @@ LCD successfully, while some functionality may be untested.
 Contributions
 -------------
 
-Contributions are more than welcome.
+Contributions are more than welcome.  Please commit them on a side
+branch (not master) with a descriptive name to make code reviews easier.
 
 Credits
 -------
