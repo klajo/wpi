@@ -103,6 +103,8 @@
 
 -type wpi_spi_channel()     :: 0..1.
 
+-export_type([wpi_lcd_handle/0]).
+-export_type([wpi_serial_handle/0]).
 
 on_load() ->
     %% Force wiringPi to return -1 on initalization failure. In
